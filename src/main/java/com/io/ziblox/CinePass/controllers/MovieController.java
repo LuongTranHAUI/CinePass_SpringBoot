@@ -2,9 +2,8 @@ package com.io.ziblox.CinePass.controllers;
 
 import com.io.ziblox.CinePass.dtos.MovieDto;
 import com.io.ziblox.CinePass.exceptions.DataNotFoundException;
-import com.io.ziblox.CinePass.mappers.MovieMapper;
-import com.io.ziblox.CinePass.models.Movie;
-import com.io.ziblox.CinePass.models.MovieImage;
+import com.io.ziblox.CinePass.exceptions.InvalidParamException;
+import com.io.ziblox.CinePass.responses.MovieResponse;
 import com.io.ziblox.CinePass.services.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,27 +11,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/movies") //Đánh version cho API giúp nâng cấp dễ dàng hơn
 @RequiredArgsConstructor
 public class MovieController {
     private final MovieService movieService;
-    private final MovieMapper movieMapper;
 
     //Thêm một phim mới
     @PostMapping(value = "")
@@ -63,22 +54,15 @@ public class MovieController {
     ) {
         try {
             movieService.addImagesToMovie(id, files);
-        } catch (IOException | DataNotFoundException e) {
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body("Uploaded images successfully");
-    }
-
-    private String storeFile(MultipartFile file) throws IOException {
-        String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        String uniqueFilename = UUID.randomUUID() + "_" + filename;
-        Path uploadDir = Paths.get("uploads");
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
+        catch (InvalidParamException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        Path destination = Paths.get(uploadDir.toString(), uniqueFilename);
-        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-        return uniqueFilename;
+        return ResponseEntity.status(HttpStatus.CREATED).body("Uploaded images successfully");
     }
 
     //Hiển thị danh sách các phim
@@ -95,7 +79,7 @@ public class MovieController {
     public ResponseEntity<?> getMovieById(
             @PathVariable("id") int id
     ) throws DataNotFoundException {
-        Movie movie = movieService.getMovieById(id);
+        MovieResponse movie = movieService.getMovieById(id);
         return ResponseEntity.ok().body(movie);
     }
 

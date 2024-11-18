@@ -2,8 +2,8 @@ package com.io.ziblox.CinePass.configs;
 
 import com.io.ziblox.CinePass.mappers.DiscountMapper;
 import com.io.ziblox.CinePass.mappers.MovieImageMapper;
-import com.io.ziblox.CinePass.mappers.MovieMapper;
 import com.io.ziblox.CinePass.mappers.UserMapper;
+import com.io.ziblox.CinePass.mappers.MovieMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

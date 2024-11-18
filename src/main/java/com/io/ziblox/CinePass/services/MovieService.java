@@ -10,6 +10,7 @@ import com.io.ziblox.CinePass.models.Movie;
 import com.io.ziblox.CinePass.models.MovieImage;
 import com.io.ziblox.CinePass.repositories.MovieImageRepository;
 import com.io.ziblox.CinePass.repositories.MovieRepository;
+import com.io.ziblox.CinePass.responses.MovieResponse;
 import com.io.ziblox.CinePass.services.interfaces.IMovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,36 +38,43 @@ public class MovieService implements IMovieService {
     private final MovieImageMapper movieImageMapper;
 
     @Override
-    public Movie createMovie(MovieDto movieDto) {
+    public void createMovie(MovieDto movieDto) {
         movieRepository.findByTitle(movieDto.getTitle())
                 .ifPresent(movie -> {
                     throw new RuntimeException("Movie already exists");
                 });
         Movie newMovie = movieMapper.toEntity(movieDto);
-        return movieRepository.save(newMovie);
+        movieRepository.save(newMovie);
     }
 
     @Override
-    public Movie getMovieById(int id) throws DataNotFoundException {
-        return movieRepository.findById(id)
+    @Transactional(readOnly = true)
+    public MovieResponse getMovieById(int id) throws DataNotFoundException {
+        Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Movie not found"));
+        return movieMapper.toResponse(movie);
     }
 
     @Override
-    public Page<Movie> getAllMovie(PageRequest pageRequest) {
-        return movieRepository.findAll(pageRequest);
+    @Transactional(readOnly = true)
+    public Page<MovieResponse> getAllMovie(PageRequest pageRequest) {
+        Page<Movie> moviePage = movieRepository.findAll(pageRequest);
+        return movieMapper.toResponsePage(moviePage);
     }
 
     @Override
-    public Movie updateMovie(int movieId, MovieDto movieDto) throws DataNotFoundException {
-        Movie existingMovie = getMovieById(movieId);
+    @Transactional
+    public void updateMovie(int movieId, MovieDto movieDto) throws DataNotFoundException {
+        Movie existingMovie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new DataNotFoundException("Movie not found"));
         Movie updatedMovie = movieMapper.toEntity(movieDto);
         updatedMovie.setId(existingMovie.getId());
         updatedMovie.setCreatedAt(existingMovie.getCreatedAt());
-        return movieRepository.save(updatedMovie);
+        movieRepository.save(updatedMovie);
     }
 
     @Override
+    @Transactional
     public void deleteMovie(int movieId) {
         movieRepository.deleteById(movieId);
     }
@@ -76,23 +84,29 @@ public class MovieService implements IMovieService {
         return movieRepository.existsByTitle(title);
     }
 
-    //Thêm ảnh cho phim
     @Override
+    @Transactional
     public MovieImage createMovieImage(Integer movieId, MovieImageDto movieImageDto) throws DataNotFoundException {
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new DataNotFoundException("Movie not found"));
         MovieImage movieImage = movieImageMapper.toEntity(movieImageDto);
-        movieImage.setMovie(existingMovie); // Set the movie field
-        // Không cho phép tạo quá 5 ảnh cho một phim
-        if (movieImageRepository.countByMovieId(movieId) >= 5) {
-            throw new InvalidParamException("Movie can only have 5 images");
-        }
+        movieImage.setMovie(existingMovie);
         return movieImageRepository.save(movieImage);
     }
 
     @Transactional
     public void addImagesToMovie(int movieId, List<MultipartFile> files) throws IOException, DataNotFoundException {
-        Movie existingMovie = getMovieById(movieId);
+        if (files.size() > 5) {
+            throw new InvalidParamException("You can upload a maximum of 5 images at a time");
+        }
+        Movie existingMovie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new DataNotFoundException("Movie not found"));
+
+        int existingImageCount = movieImageRepository.countByMovieId(movieId);
+        if (existingImageCount + files.size() > 5) {
+            throw new InvalidParamException("A movie can have a maximum of 5 images");
+        }
+
         for (MultipartFile file : files) {
             if (file.getSize() == 0) {
                 continue;
@@ -117,6 +131,9 @@ public class MovieService implements IMovieService {
     }
 
     private String storeFile(MultipartFile file) throws IOException {
+        if(!isImage(file)) {
+            throw new IOException("Only image files are supported");
+        }
         String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String uniqueFilename = UUID.randomUUID() + "_" + filename;
         Path uploadDir = Paths.get("uploads");
@@ -126,5 +143,10 @@ public class MovieService implements IMovieService {
         Path destination = Paths.get(uploadDir.toString(), uniqueFilename);
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         return uniqueFilename;
+    }
+
+    private boolean isImage(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image/");
     }
 }
