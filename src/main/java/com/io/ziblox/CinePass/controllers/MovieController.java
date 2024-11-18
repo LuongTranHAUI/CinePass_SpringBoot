@@ -4,9 +4,11 @@ import com.io.ziblox.CinePass.dtos.MovieDto;
 import com.io.ziblox.CinePass.exceptions.DataNotFoundException;
 import com.io.ziblox.CinePass.exceptions.InvalidParamException;
 import com.io.ziblox.CinePass.responses.MovieResponse;
+import com.io.ziblox.CinePass.responses.PagedResponse;
 import com.io.ziblox.CinePass.services.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,8 +60,7 @@ public class MovieController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
-        }
-        catch (InvalidParamException e) {
+        } catch (InvalidParamException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Uploaded images successfully");
@@ -71,7 +72,12 @@ public class MovieController {
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
     ) {
-        return ResponseEntity.ok().body(movieService.getAllMovie(PageRequest.of(page - 1, limit)).getContent());
+        Page<MovieResponse> movieResponsePage = movieService.getAllMovie(PageRequest.of(page - 1, limit));
+        PagedResponse<MovieResponse> pagedResponse = new PagedResponse<>(
+                movieResponsePage.getContent(),
+                movieResponsePage.getTotalPages()
+        );
+        return ResponseEntity.ok().body(pagedResponse);
     }
 
     //Hiển thị thông tin chi tiết một phim theo id
@@ -79,8 +85,14 @@ public class MovieController {
     public ResponseEntity<?> getMovieById(
             @PathVariable("id") int id
     ) throws DataNotFoundException {
-        MovieResponse movie = movieService.getMovieById(id);
-        return ResponseEntity.ok().body(movie);
+        try {
+            MovieResponse movieResponse = movieService.getMovieById(id);
+            return ResponseEntity.ok().body(movieResponse);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     //Sửa thông tin một phim
@@ -97,8 +109,14 @@ public class MovieController {
                     .map(FieldError::getDefaultMessage)
                     .toList());
         }
-        movieService.updateMovie(id, movieDto);
-        return ResponseEntity.ok().body("Updated movie with id " + id);
+        try {
+            movieService.updateMovie(id, movieDto);
+            return ResponseEntity.ok().body("Updated movie with id " + id);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     //Xóa một phim
@@ -107,6 +125,26 @@ public class MovieController {
             @Valid
             @PathVariable("id") int id
     ) {
-        return ResponseEntity.status(204).body("Deleted movie with id " + id);
+        try {
+            movieService.deleteMovie(id);
+            return ResponseEntity.noContent().build();
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/generateFakeData")
+    public ResponseEntity<?> generateFakeData() {
+        try {
+            for (int i = 0; i < 10; i++){
+                MovieDto fakeMovie = movieService.generateFakeMovie();
+                movieService.createMovie(fakeMovie);
+            }
+            return ResponseEntity.ok().body("Generated fake data successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.io.ziblox.CinePass.services;
 
+import com.github.javafaker.Faker;
 import com.io.ziblox.CinePass.dtos.MovieDto;
 import com.io.ziblox.CinePass.dtos.MovieImageDto;
 import com.io.ziblox.CinePass.exceptions.DataNotFoundException;
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -76,6 +78,8 @@ public class MovieService implements IMovieService {
     @Override
     @Transactional
     public void deleteMovie(int movieId) {
+        Movie existingMovie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new DataNotFoundException("Movie not found"));
         movieRepository.deleteById(movieId);
     }
 
@@ -148,5 +152,21 @@ public class MovieService implements IMovieService {
     private boolean isImage(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
+    }
+
+    public MovieDto generateFakeMovie() {
+        Faker faker = new Faker();
+        MovieDto movieDto = new MovieDto();
+        movieDto.setActor(faker.name().fullName());
+        movieDto.setDirector(faker.name().fullName());
+        movieDto.setRunTime(faker.number().numberBetween(90, 180));
+        movieDto.setGenre(faker.book().genre());
+        movieDto.setThumbnail(null);
+        movieDto.setRating(faker.number().randomDouble(1, 1, 10));
+        movieDto.setReleaseDate(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        movieDto.setSummary(faker.lorem().paragraph());
+        movieDto.setTitle(faker.book().title());
+        movieDto.setTrailerUrl(faker.internet().url());
+        return movieDto;
     }
 }
