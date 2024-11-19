@@ -26,9 +26,6 @@ public class Snack extends Base{
     @Column(nullable = false)
     private double price;
 
-    @Column
-    private String thumbnail; // For main/thumbnail image
-
     @OneToMany(mappedBy = "snack", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SnackImage> snackImages;
 }

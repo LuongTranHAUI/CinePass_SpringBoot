@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "movie_images")
-public class MovieImage {
+public class MovieImage extends Base {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

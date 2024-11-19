@@ -26,8 +26,6 @@ public class MovieDto {
     @NotBlank(message = "Genre is required")
     private String genre;
 
-    private String thumbnail;
-
     @NotNull(message = "Rating is required")
     private Double rating;
 

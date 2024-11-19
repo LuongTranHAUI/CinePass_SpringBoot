@@ -127,9 +127,6 @@ public class MovieService implements IMovieService {
             movieImage.setImageUrl(filename);
             movieImage.setMovie(existingMovie);
             existingMovie.getMovieImages().add(movieImage);
-            if (existingMovie.getThumbnail() == null) {
-                existingMovie.setThumbnail(filename);
-            }
         }
         movieRepository.save(existingMovie);
     }
@@ -161,7 +158,6 @@ public class MovieService implements IMovieService {
         movieDto.setDirector(faker.name().fullName());
         movieDto.setRunTime(faker.number().numberBetween(90, 180));
         movieDto.setGenre(faker.book().genre());
-        movieDto.setThumbnail(null);
         movieDto.setRating(faker.number().randomDouble(1, 1, 10));
         movieDto.setReleaseDate(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
         movieDto.setSummary(faker.lorem().paragraph());

@@ -28,9 +28,6 @@ public class Movie extends Base {
     @Column
     private String genre;
 
-    @Column  // For the main/thumbnail image URL/filename
-    private String thumbnail;
-
     @Column
     private double rating;
 
