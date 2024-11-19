@@ -1,7 +1,7 @@
 package com.io.ziblox.CinePass.services.interfaces;
 
-import com.io.ziblox.CinePass.dtos.UserDto;
-import com.io.ziblox.CinePass.models.User;
+import com.io.ziblox.CinePass.models.dtos.UserDto;
+import com.io.ziblox.CinePass.entities.User;
 
 public interface IUserService {
     User createUser(UserDto userDto);

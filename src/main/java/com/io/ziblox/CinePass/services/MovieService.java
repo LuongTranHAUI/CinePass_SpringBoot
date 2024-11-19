@@ -1,17 +1,17 @@
 package com.io.ziblox.CinePass.services;
 
 import com.github.javafaker.Faker;
-import com.io.ziblox.CinePass.dtos.MovieDto;
-import com.io.ziblox.CinePass.dtos.MovieImageDto;
+import com.io.ziblox.CinePass.entities.Movie;
+import com.io.ziblox.CinePass.entities.MovieImage;
 import com.io.ziblox.CinePass.exceptions.DataNotFoundException;
 import com.io.ziblox.CinePass.exceptions.InvalidParamException;
 import com.io.ziblox.CinePass.mappers.MovieImageMapper;
 import com.io.ziblox.CinePass.mappers.MovieMapper;
-import com.io.ziblox.CinePass.models.Movie;
-import com.io.ziblox.CinePass.models.MovieImage;
+import com.io.ziblox.CinePass.models.dtos.MovieDto;
+import com.io.ziblox.CinePass.models.dtos.MovieImageDto;
+import com.io.ziblox.CinePass.models.responses.MovieResponse;
 import com.io.ziblox.CinePass.repositories.MovieImageRepository;
 import com.io.ziblox.CinePass.repositories.MovieRepository;
-import com.io.ziblox.CinePass.responses.MovieResponse;
 import com.io.ziblox.CinePass.services.interfaces.IMovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -69,16 +69,14 @@ public class MovieService implements IMovieService {
     public void updateMovie(int movieId, MovieDto movieDto) throws DataNotFoundException {
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new DataNotFoundException("Movie not found"));
-        Movie updatedMovie = movieMapper.toEntity(movieDto);
-        updatedMovie.setId(existingMovie.getId());
-        updatedMovie.setCreatedAt(existingMovie.getCreatedAt());
-        movieRepository.save(updatedMovie);
+        movieMapper.updateEntityFromDto(movieDto, existingMovie);
+        movieRepository.save(existingMovie);
     }
 
     @Override
     @Transactional
     public void deleteMovie(int movieId) {
-        Movie existingMovie = movieRepository.findById(movieId)
+        movieRepository.findById(movieId)
                 .orElseThrow(() -> new DataNotFoundException("Movie not found"));
         movieRepository.deleteById(movieId);
     }
@@ -132,7 +130,7 @@ public class MovieService implements IMovieService {
     }
 
     private String storeFile(MultipartFile file) throws IOException {
-        if(!isImage(file)) {
+        if (!isImage(file)) {
             throw new IOException("Only image files are supported");
         }
         String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
@@ -155,12 +153,12 @@ public class MovieService implements IMovieService {
         Faker faker = new Faker();
         MovieDto movieDto = new MovieDto();
         movieDto.setActor(faker.name().fullName());
+        movieDto.setDescription(faker.lorem().paragraph());
         movieDto.setDirector(faker.name().fullName());
         movieDto.setRunTime(faker.number().numberBetween(90, 180));
         movieDto.setGenre(faker.book().genre());
         movieDto.setRating(faker.number().randomDouble(1, 1, 10));
         movieDto.setReleaseDate(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        movieDto.setSummary(faker.lorem().paragraph());
         movieDto.setTitle(faker.book().title());
         movieDto.setTrailerUrl(faker.internet().url());
         return movieDto;

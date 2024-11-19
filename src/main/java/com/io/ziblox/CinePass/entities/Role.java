@@ -1,4 +1,4 @@
-package com.io.ziblox.CinePass.models;
+package com.io.ziblox.CinePass.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,11 +9,10 @@ import lombok.Data;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    public static String ADMIN = "ADMIN";
-    public static String USER = "USER";
+    private String description;
 }

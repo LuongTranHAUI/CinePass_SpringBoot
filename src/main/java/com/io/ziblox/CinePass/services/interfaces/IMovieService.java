@@ -1,10 +1,10 @@
 package com.io.ziblox.CinePass.services.interfaces;
 
-import com.io.ziblox.CinePass.dtos.MovieDto;
-import com.io.ziblox.CinePass.dtos.MovieImageDto;
+import com.io.ziblox.CinePass.models.dtos.MovieDto;
+import com.io.ziblox.CinePass.models.dtos.MovieImageDto;
 import com.io.ziblox.CinePass.exceptions.DataNotFoundException;
-import com.io.ziblox.CinePass.models.MovieImage;
-import com.io.ziblox.CinePass.responses.MovieResponse;
+import com.io.ziblox.CinePass.entities.MovieImage;
+import com.io.ziblox.CinePass.models.responses.MovieResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 

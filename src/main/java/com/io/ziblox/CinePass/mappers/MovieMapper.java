@@ -1,9 +1,10 @@
 package com.io.ziblox.CinePass.mappers;
 
-import com.io.ziblox.CinePass.dtos.MovieDto;
-import com.io.ziblox.CinePass.models.Movie;
-import com.io.ziblox.CinePass.responses.MovieResponse;
+import com.io.ziblox.CinePass.entities.Movie;
+import com.io.ziblox.CinePass.models.dtos.MovieDto;
+import com.io.ziblox.CinePass.models.responses.MovieResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
@@ -24,6 +25,8 @@ public interface MovieMapper {
     default Page<MovieResponse> toResponsePage(Page<Movie> moviePage) {
         return moviePage.map(this::toResponse);
     }
+
+    void updateEntityFromDto(MovieDto movieDto, @MappingTarget Movie movie);
 }
 
 

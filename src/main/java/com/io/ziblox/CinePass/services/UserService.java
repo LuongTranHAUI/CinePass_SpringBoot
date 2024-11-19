@@ -1,8 +1,8 @@
 package com.io.ziblox.CinePass.services;
 
-import com.io.ziblox.CinePass.dtos.UserDto;
+import com.io.ziblox.CinePass.models.dtos.UserDto;
 import com.io.ziblox.CinePass.mappers.UserMapper;
-import com.io.ziblox.CinePass.models.User;
+import com.io.ziblox.CinePass.entities.User;
 import com.io.ziblox.CinePass.repositories.UserRepository;
 import com.io.ziblox.CinePass.services.interfaces.IUserService;
 import jakarta.transaction.Transactional;

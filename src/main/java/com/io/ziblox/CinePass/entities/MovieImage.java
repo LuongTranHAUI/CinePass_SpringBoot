@@ -1,4 +1,4 @@
-package com.io.ziblox.CinePass.models;
+package com.io.ziblox.CinePass.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

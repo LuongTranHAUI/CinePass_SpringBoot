@@ -1,8 +1,8 @@
 package com.io.ziblox.CinePass.mappers;
 
-import com.io.ziblox.CinePass.dtos.MovieImageDto;
-import com.io.ziblox.CinePass.models.MovieImage;
-import com.io.ziblox.CinePass.responses.MovieImageResponse;
+import com.io.ziblox.CinePass.models.dtos.MovieImageDto;
+import com.io.ziblox.CinePass.entities.MovieImage;
+import com.io.ziblox.CinePass.models.responses.MovieImageResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

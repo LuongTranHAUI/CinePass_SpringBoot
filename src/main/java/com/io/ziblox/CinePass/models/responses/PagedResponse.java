@@ -1,4 +1,4 @@
-package com.io.ziblox.CinePass.responses;
+package com.io.ziblox.CinePass.models.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

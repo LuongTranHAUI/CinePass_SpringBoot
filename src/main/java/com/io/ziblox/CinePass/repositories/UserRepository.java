@@ -1,6 +1,6 @@
 package com.io.ziblox.CinePass.repositories;
 
-import com.io.ziblox.CinePass.models.User;
+import com.io.ziblox.CinePass.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

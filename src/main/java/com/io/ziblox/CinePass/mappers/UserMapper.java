@@ -1,7 +1,7 @@
 package com.io.ziblox.CinePass.mappers;
 
-import com.io.ziblox.CinePass.dtos.UserDto;
-import com.io.ziblox.CinePass.models.User;
+import com.io.ziblox.CinePass.models.dtos.UserDto;
+import com.io.ziblox.CinePass.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;

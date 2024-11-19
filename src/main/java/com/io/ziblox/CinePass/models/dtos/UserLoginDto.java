@@ -1,4 +1,4 @@
-package com.io.ziblox.CinePass.dtos;
+package com.io.ziblox.CinePass.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

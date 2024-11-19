@@ -1,4 +1,4 @@
-package com.io.ziblox.CinePass.dtos;
+package com.io.ziblox.CinePass.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -33,8 +33,8 @@ public class MovieDto {
     @JsonProperty("release_date")
     private LocalDateTime releaseDate;
 
-    @NotEmpty(message = "Summary is required")
-    private String summary;
+    @NotEmpty(message = "Description is required")
+    private String description;
 
     @NotBlank(message = "Title is required")
     private String title;

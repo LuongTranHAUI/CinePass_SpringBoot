@@ -1,10 +1,10 @@
 package com.io.ziblox.CinePass.controllers;
 
-import com.io.ziblox.CinePass.dtos.MovieDto;
+import com.io.ziblox.CinePass.models.dtos.MovieDto;
 import com.io.ziblox.CinePass.exceptions.DataNotFoundException;
 import com.io.ziblox.CinePass.exceptions.InvalidParamException;
-import com.io.ziblox.CinePass.responses.MovieResponse;
-import com.io.ziblox.CinePass.responses.PagedResponse;
+import com.io.ziblox.CinePass.models.responses.MovieResponse;
+import com.io.ziblox.CinePass.models.responses.PagedResponse;
 import com.io.ziblox.CinePass.services.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
